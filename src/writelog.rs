@@ -12,6 +12,7 @@ use time;
 use std::io::Write;
 use std::marker::Send;
 use std::sync::Mutex;
+use std::ops::Drop;
 use super::SharedLogger;
 
 /// The WriteLogger struct. Provides a Write trait based Logger implementation
@@ -74,7 +75,10 @@ impl Log for WriteLogger {
     fn log(&self, record: &LogRecord) {
         if self.enabled(record.metadata()) {
 
-            let mut lock = self.writer.lock().unwrap();
+            let mut lock = match self.writer.lock() {
+                Ok(l) => l,
+                Err(_) => return,
+            };
 
             let cur_time = time::now();
 
@@ -118,4 +122,10 @@ impl SharedLogger for WriteLogger {
         Box::new(*self)
     }
 
+}
+
+impl Drop for WriteLogger {
+    fn drop(&mut self) {
+        self.writer.lock().map(|mut l| l.flush()).ok();
+    }
 }
