@@ -29,12 +29,14 @@ mod simplelog;
 #[cfg(feature = "term")]
 mod termlog;
 mod filelog;
+mod writelog;
 mod comblog;
 
 pub use self::simplelog::SimpleLogger;
 #[cfg(feature = "term")]
 pub use self::termlog::TermLogger;
 pub use self::filelog::FileLogger;
+pub use self::writelog::WriteLogger;
 pub use self::comblog::CombinedLogger;
 
 pub use log::LogLevelFilter;
